@@ -23,21 +23,35 @@ function App() {
     let totalrow = hotTableComponent.current.hotInstance.getData().length;
     //console.log(totalrow)
     debugger
-    var resultdata = hotTableComponent.current.hotInstance.getData(1, 1, totalrow - 1, 3);
+    var skillSectionResultdata = hotTableComponent.current.hotInstance.getData(1, 1, totalrow - 1, 3);
 
-    for (let r = 0; r < resultdata.length; r++) {
-      var dataset = resultdata[r];
+    for (let r = 0; r < skillSectionResultdata.length; r++) {
+      var dataset = skillSectionResultdata[r];
       var sum = 0;
       for (let c = 0; c < dataset.length; c++) {
         sum = sum + dataset[c];
 
       }
       if (sum != 1) {
-        alert('Erorr in row ' + (r + 1) + ' In skill section, Total shuld be equals to 1 ')
+        alert('Erorr in row ' + (r+1) + ' In skill section, Total shuld be equals to 1 ')
       }
 
     }
+debugger
+    var CapacitySectionResultdata = hotTableComponent.current.hotInstance.getData(1, 4, totalrow - 1, 7);
 
+    for (let r = 0; r < CapacitySectionResultdata.length; r++) {
+      var dataset = CapacitySectionResultdata[r];
+      var sum = 0;
+      for (let c = 0; c < dataset.length; c++) {
+        sum = sum + dataset[c];
+
+      }
+      if (sum != 1) {
+        alert('Erorr in row ' + (r+1) + ' In Capacity section, Total shuld be equals to 100 ')
+      }
+
+    }
   }
 
 
@@ -65,15 +79,27 @@ function App() {
           },
           {
             type: 'numeric',
+            numericFormat:{
+              pattern:'%'
+            }
           },
           {
             type: 'numeric',
+            numericFormat:{
+              pattern:'%'
+            }
           },
           {
             type: 'numeric',
+            numericFormat:{
+              pattern:'%'
+            }
           },
           {
             type: 'numeric',
+            numericFormat:{
+              pattern:'%'
+            }
           }]}
         />
       </div>

@@ -11,9 +11,9 @@ function App() {
 
   const data = [
     ["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"],
-    ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2],
-    ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2],
-    ["C", 0.5, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2]
+    ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2,0.5],
+    ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2,0.2],
+    ["C", 0.5, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2,0.3]
   ];
 
 
@@ -76,6 +76,12 @@ debugger
           },
           {
             type: 'numeric',
+          },
+          {
+            type: 'numeric',
+            numericFormat:{
+              pattern:'%'
+            }
           },
           {
             type: 'numeric',

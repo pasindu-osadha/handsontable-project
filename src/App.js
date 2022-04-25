@@ -9,7 +9,7 @@ registerAllModules();
 
 
 function findErrorSections(hotTableInstance) {
- 
+
   var issueList = []; // This list has information about selected errors  
   var totalrow = hotTableInstance.getData().length;
   var tableResultdata = hotTableInstance.getData(0, 0, totalrow, 7);
@@ -28,7 +28,7 @@ function findErrorSections(hotTableInstance) {
     }
 
     if (sum !== 1) {
-      issueList.push({ "range": { "from": { "row": r, "col": 1 }, "to": { "row": r, "col": 3 } }, "top": { "width": 2, "color": "#5292F7" }, "left": { "width": 2, "color": "orange" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "magenta" } });
+      issueList.push({ "range": { "from": { "row": r, "col": 1 }, "to": { "row": r, "col": 3 } }, "top": { "width": 2, "color": "red" }, "left": { "width": 2, "color": "red" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "red" } });
       //issueList.push({ "startRow": r, "startColumn": 1, "endRow": r, "endColumn": 3 });
       //  alert('Erorr in row ' + (r + 1) + ' In skill section, Total shuld be equals to 1 ')
     }
@@ -46,7 +46,7 @@ function findErrorSections(hotTableInstance) {
     }
 
     if (sum !== 1) {
-      issueList.push({ "range": { "from": { "row": r, "col": 4 }, "to": { "row": r, "col": 7 } }, "top": { "width": 2, "color": "#5292F7" }, "left": { "width": 2, "color": "orange" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "magenta" } });
+      issueList.push({ "range": { "from": { "row": r, "col": 4 }, "to": { "row": r, "col": 7 } }, "top": { "width": 2, "color": "red" }, "left": { "width": 2, "color": "red" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "red" } });
       // alert('Erorr in row ' + (r + 1) + ' In Capacity section, Total shuld be equals to 100 ')
     }
 
@@ -56,7 +56,7 @@ function findErrorSections(hotTableInstance) {
 }
 
 function drawSectionBoders(hotTableInstance, issueList) {
-  
+
   hotTableInstance.updateSettings({
     customBorders: []
   });
@@ -78,7 +78,7 @@ function App() {
 
   const hotTableComponent = useRef(null);
 
-  function savedata  () {
+  function savedata() {
 
     if (checkValidation()) {
       var data = hotTableComponent.current.hotInstance.getData();
@@ -95,7 +95,18 @@ function App() {
     let list = findErrorSections(hotTableInstance);
     drawSectionBoders(hotTableInstance, list);
     if (list.length !== 0) {
-      alert('In the skill section Total shuld be equals to 1 and In Capacity section, Total shuld be equals to 100% ')
+
+      let skillobject = list.find(skill => skill.range.from.col === 1 && skill.range.to.col === 3);
+      let capacityObject = list.find(skill => skill.range.from.col === 4 && skill.range.to.col === 7);
+
+      if (skillobject !== undefined) {
+        alert('In the skill section, Total shuld be equals to 1')
+      }
+
+      if (capacityObject !== undefined) {
+        alert('In Capacity section, Total shuld be equals to 100% ');
+      }
+
       return false;
     }
     else {

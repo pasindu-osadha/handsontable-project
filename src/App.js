@@ -3,6 +3,11 @@ import React, { useRef } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import { postDataService } from './services/apiService'
+import { getsampledata } from './data/sampledata'
+import Button from 'react-bootstrap/Button';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+
 
 
 registerAllModules();
@@ -69,12 +74,13 @@ function drawSectionBoders(hotTableInstance, issueList) {
 
 function App() {
 
-  const data = [
-    ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5],
-    ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2],
-    ["C", 0.5, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.3]
-  ];
+  // const data = [
+  //   ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5],
+  //   ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2],
+  //   ["C", 0.5, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.3]
+  // ];
 
+  let data = getsampledata();
 
   const hotTableComponent = useRef(null);
 
@@ -117,6 +123,8 @@ function App() {
 
   return (
     <div className="App">
+      <Button className="m-2" onClick={savedata}>save</Button>
+      <Button className='m-2' onClick={checkValidation}>Validate</Button>
       <div id="hot-app">
         <HotTable
           ref={hotTableComponent}
@@ -169,8 +177,7 @@ function App() {
         />
       </div>
 
-      <button onClick={savedata}>save</button>
-      <button onClick={checkValidation}>Validate</button>
+
 
     </div>
   );

@@ -1,11 +1,12 @@
 import './App.css';
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import { postDataService } from './services/apiService'
 import { getsampledata } from './data/sampledata'
 import Button from 'react-bootstrap/Button';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { PaginationComponent } from './components/PaginationComponent';
 
 
 
@@ -14,6 +15,8 @@ registerAllModules();
 
 
 function findErrorSections(hotTableInstance) {
+
+  var t3 = performance.now();
 
   var issueList = []; // This list has information about selected errors  
   var totalrow = hotTableInstance.getData().length;
@@ -56,6 +59,8 @@ function findErrorSections(hotTableInstance) {
     }
 
   }
+  var t4 = performance.now();
+  console.log("Find error section function Take " + (t4 - t3) + " milliseconds.");
 
   return issueList;
 }
@@ -73,6 +78,8 @@ function drawSectionBoders(hotTableInstance, issueList) {
 
 
 function App() {
+
+  const [pageno, setpageno] = useState(0);
 
   // const data = [
   //   ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5],
@@ -97,9 +104,19 @@ function App() {
   }
 
   function checkValidation() {
+
+    var t0 = performance.now();
+
     let hotTableInstance = hotTableComponent.current.hotInstance;
     let list = findErrorSections(hotTableInstance);
     drawSectionBoders(hotTableInstance, list);
+
+
+    var t1 = performance.now();
+    console.log("Validate and draw borders function Take " + (t1 - t0) + " milliseconds.");
+
+
+
     if (list.length !== 0) {
 
       let skillobject = list.find(skill => skill.range.from.col === 1 && skill.range.to.col === 3);
@@ -118,6 +135,12 @@ function App() {
     else {
       return true;
     }
+
+
+  }
+
+  const callbackFunction = (childData) => {
+    setpageno(childData); //stored in pageno
   }
 
 
@@ -125,6 +148,7 @@ function App() {
     <div className="App">
       <Button className="m-2" onClick={savedata}>save</Button>
       <Button className='m-2' onClick={checkValidation}>Validate</Button>
+      <PaginationComponent pageCount={1} parentCallback={callbackFunction} />
       <div id="hot-app">
         <HotTable
           ref={hotTableComponent}
@@ -174,6 +198,9 @@ function App() {
               pattern: '%'
             }
           }]}
+
+          filters={true}
+          dropdownMenu={true}
         />
       </div>
 

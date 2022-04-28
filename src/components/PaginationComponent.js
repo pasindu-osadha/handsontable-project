@@ -7,14 +7,20 @@ import Pagination from 'react-bootstrap/Pagination'
 export const PaginationComponent = (props) => {
     const [itemclick, setitemclick] = useState(0);
 
-    const paginationClicked = (event) => {
-        setitemclick(parseInt(event.target.text))
-        props.parentCallback(itemclick)
+    const paginationClicked = async(event) => {
+        debugger
+        var c = await parseInt(event.target.text);
+        
+        // await setitemclick(c)
+        // await console.log(itemclick);
+        // await props.parentCallback(itemclick)
+        props.parentCallback(c);
+
 
     }
 
-    
-    let active = 4;
+
+    let active = itemclick;
     let items = [];
     for (let number = 1; number <= props.pageCount; number++) {
         items.push(

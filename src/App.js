@@ -80,7 +80,11 @@ function drawSectionBoders(hotTableInstance, issueList) {
 function App() {
 
   const [pageno, setpageno] = useState(0);
+  const [pagecount, setpagecount] = useState(0);
 
+
+  var rowsOnPage = 25;
+ 
   // const data = [
   //   ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5],
   //   ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2],
@@ -139,16 +143,56 @@ function App() {
 
   }
 
+
+
   const callbackFunction = (childData) => {
+    debugger
     setpageno(childData); //stored in pageno
+    let t = hotTableComponent.current.hotInstance.getData();
+
+    hotTableComponent.current.hotInstance.updateSettings({
+      hiddenRows: {
+        rows: getHiddenDataArray(pageno,t),
+        indicators: false
+      }
+    });
+
   }
 
+
+  function paginationFunc() {
+    debugger
+    
+    let tabledata = hotTableComponent.current.hotInstance.getData();
+    setpagecount(Math.ceil(tabledata.length / rowsOnPage));
+
+  }
+
+  function getHiddenDataArray(clicked,tabledata) {
+    var HiddenArr = [];
+ 
+    if (clicked === 1) {
+      for (var i = (clicked * rowsOnPage); i < tabledata.length; i++) {
+        HiddenArr.push(i);
+      }
+      return HiddenArr;
+    } else {
+      for (var j = 0; j < (clicked * rowsOnPage) - rowsOnPage; j++) {
+        HiddenArr.push(j);
+      }
+      for (var i = (clicked * rowsOnPage); i < tabledata.length; i++) {
+        HiddenArr.push(i);
+      }
+      return HiddenArr;
+    }
+  }
 
   return (
     <div className="App">
       <Button className="m-2" onClick={savedata}>save</Button>
       <Button className='m-2' onClick={checkValidation}>Validate</Button>
-      <PaginationComponent pageCount={1} parentCallback={callbackFunction} />
+      <Button className='m-2' onClick={paginationFunc}>pagiantion enable</Button>
+      <PaginationComponent pageCount={pagecount} parentCallback={callbackFunction} />
       <div id="hot-app">
         <HotTable
           ref={hotTableComponent}

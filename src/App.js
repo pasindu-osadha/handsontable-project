@@ -67,11 +67,15 @@ function App() {
   }
 
   function validateBtnClick() {
+    var t1 = performance.now();
 
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
     let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
     drawSectionBoders(hotTableComponent.current.hotInstance, result);
     // checkValidation(result);
+
+    var t2 = performance.now();
+    console.log("validateBtnClick function Take " + (t2 - t1) + " milliseconds.");
   }
 
   const callbackFunction = async (childData) => {

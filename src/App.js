@@ -1,86 +1,62 @@
 import './App.css';
-import React, { useRef } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
 import { postDataService } from './services/apiService'
+import { getsampledata } from './data/sampledata'
+import { Button, Container, Row, Col } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { PaginationComponent } from './components/PaginationComponent';
+import { findErrorSections, drawSectionBoders, getHiddenDataArray, getViewDataIssuesList, checkValidation } from './components/FunctionsHandsonTable'
+
+
 
 
 registerAllModules();
 
-
-function findErrorSections(hotTableInstance) {
-
-  var issueList = []; // This list has information about selected errors  
-  var totalrow = hotTableInstance.getData().length;
-  var tableResultdata = hotTableInstance.getData(0, 0, totalrow, 7);
-
-  var dataset = [];
-  var sum = 0;
-
-  //skills section 
-  for (let r = 0; r < tableResultdata.length; r++) {
-
-    dataset = tableResultdata[r];
-    sum = 0;
-
-    for (let c = 1; c < 4; c++) {
-      sum = sum + dataset[c];
-    }
-
-    if (sum !== 1) {
-      issueList.push({ "range": { "from": { "row": r, "col": 1 }, "to": { "row": r, "col": 3 } }, "top": { "width": 2, "color": "red" }, "left": { "width": 2, "color": "red" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "red" } });
-      //issueList.push({ "startRow": r, "startColumn": 1, "endRow": r, "endColumn": 3 });
-      //  alert('Erorr in row ' + (r + 1) + ' In skill section, Total shuld be equals to 1 ')
-    }
-
-  }
-
-  // category section 
-  for (let r = 0; r < tableResultdata.length; r++) {
-
-    dataset = tableResultdata[r];
-    sum = 0;
-
-    for (let c = 4; c < 8; c++) {
-      sum = sum + dataset[c];
-    }
-
-    if (sum !== 1) {
-      issueList.push({ "range": { "from": { "row": r, "col": 4 }, "to": { "row": r, "col": 7 } }, "top": { "width": 2, "color": "red" }, "left": { "width": 2, "color": "red" }, "bottom": { "width": 2, "color": "red" }, "right": { "width": 2, "color": "red" } });
-      // alert('Erorr in row ' + (r + 1) + ' In Capacity section, Total shuld be equals to 100 ')
-    }
-
-  }
-
-  return issueList;
-}
-
-function drawSectionBoders(hotTableInstance, issueList) {
-
-  hotTableInstance.updateSettings({
-    customBorders: []
-  });
-  hotTableInstance.updateSettings({
-    customBorders: issueList
-  });
-}
-
-
-
 function App() {
 
-  const data = [
-    ["A", 0.25, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.5],
-    ["B", 0.35, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2],
-    ["C", 0.5, 0.25, 0.5, 0.2, 0.2, 0.2, 0.2, 0.3]
-  ];
+  const [pageno, setpageno] = useState(1);
+  const [pagecount, setpagecount] = useState(0);
 
+  useEffect(() => {
+    updateNewTableView();
+  }, [pageno])
+
+  useEffect(() => {
+    paginationFunc();
+  }, [pagecount])
+
+  var rowsOnPage = 20;
+
+  let data = getsampledata();
 
   const hotTableComponent = useRef(null);
 
-  function savedata() {
 
-    if (checkValidation()) {
+
+  function updateNewTableView() {
+    let t = hotTableComponent.current.hotInstance.getData();
+    hotTableComponent.current.hotInstance.updateSettings({
+      hiddenRows: {
+        rows: getHiddenDataArray(pageno, t, rowsOnPage),
+        indicators: false
+      }
+    });
+  }
+
+
+  function paginationFunc() {
+
+    let tabledata = hotTableComponent.current.hotInstance.getData();
+    setpagecount(Math.ceil(tabledata.length / rowsOnPage));
+
+  }
+
+  function saveBtnClick() {
+    let issueList = findErrorSections(hotTableComponent.current.hotInstance);
+
+    if (checkValidation(issueList)) {
       var data = hotTableComponent.current.hotInstance.getData();
       postDataService(JSON.stringify(data))
       alert('Sucessfuly saved')
@@ -90,87 +66,103 @@ function App() {
 
   }
 
-  function checkValidation() {
-    let hotTableInstance = hotTableComponent.current.hotInstance;
-    let list = findErrorSections(hotTableInstance);
-    drawSectionBoders(hotTableInstance, list);
-    if (list.length !== 0) {
+  function validateBtnClick() {
+    var t1 = performance.now();
 
-      let skillobject = list.find(skill => skill.range.from.col === 1 && skill.range.to.col === 3);
-      let capacityObject = list.find(skill => skill.range.from.col === 4 && skill.range.to.col === 7);
+    let issueList = findErrorSections(hotTableComponent.current.hotInstance);
+    let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
+    drawSectionBoders(hotTableComponent.current.hotInstance, result);
+    // checkValidation(result);
 
-      if (skillobject !== undefined) {
-        alert('In the skill section, Total shuld be equals to 1')
-      }
+    var t2 = performance.now();
+    console.log("validateBtnClick function Take " + (t2 - t1) + " milliseconds.");
+  }
 
-      if (capacityObject !== undefined) {
-        alert('In Capacity section, Total shuld be equals to 100% ');
-      }
-
-      return false;
-    }
-    else {
-      return true;
-    }
+  const callbackFunction = async (childData) => {
+    setpageno(childData); //stored in pageno
   }
 
 
   return (
     <div className="App">
-      <div id="hot-app">
-        <HotTable
-          ref={hotTableComponent}
-          data={data}
-          colHeaders={["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"]}
-          rowHeaders={true}
-          width="600"
-          columns={[{
-            type: 'text',
-          },
-          {
-            type: 'numeric',
-          },
-          {
-            type: 'numeric',
-          },
-          {
-            type: 'numeric',
-          },
-          {
-            type: 'numeric',
-            numericFormat: {
-              pattern: '%'
-            }
-          },
-          {
-            type: 'numeric',
-            numericFormat: {
-              pattern: '%'
-            }
-          },
-          {
-            type: 'numeric',
-            numericFormat: {
-              pattern: '%'
-            }
-          },
-          {
-            type: 'numeric',
-            numericFormat: {
-              pattern: '%'
-            }
-          },
-          {
-            type: 'numeric',
-            numericFormat: {
-              pattern: '%'
-            }
-          }]}
-        />
-      </div>
+      <Container >
 
-      <button onClick={savedata}>save</button>
-      <button onClick={checkValidation}>Validate</button>
+        <Row >
+          <Col> <h1 className="justify-content-center">Handson Table </h1> </Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button className="m-2" onClick={saveBtnClick}>Save</Button>
+            <Button className='m-2' onClick={validateBtnClick}>Page Validate</Button>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+
+            <HotTable
+              ref={hotTableComponent}
+              data={data}
+              colHeaders={["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"]}
+              rowHeaders={true}
+              columns={[{
+                type: 'text',
+              },
+              {
+                type: 'numeric',
+              },
+              {
+                type: 'numeric',
+              },
+              {
+                type: 'numeric',
+              },
+              {
+                type: 'numeric',
+                numericFormat: {
+                  pattern: '%'
+                }
+              },
+              {
+                type: 'numeric',
+                numericFormat: {
+                  pattern: '%'
+                }
+              },
+              {
+                type: 'numeric',
+                numericFormat: {
+                  pattern: '%'
+                }
+              },
+              {
+                type: 'numeric',
+                numericFormat: {
+                  pattern: '%'
+                }
+              },
+              {
+                type: 'numeric',
+                numericFormat: {
+                  pattern: '%'
+                }
+              }]}
+              stretchH='all'
+              manualColumnResize={true}
+              filters={true}
+              dropdownMenu={true}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <PaginationComponent pageCount={pagecount} parentCallback={callbackFunction} />
+          </Col>
+        </Row>
+      </Container>
+
+
+
+
 
     </div>
   );

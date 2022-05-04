@@ -2,7 +2,7 @@ import './App.css';
 import React, { useRef, useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
-import { postDataService } from './services/apiService'
+import { postDataService, getAllData } from './services/apiService'
 import { getsampledata } from './data/sampledata'
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,19 +17,26 @@ registerAllModules();
 function App() {
 
   const [pageno, setpageno] = useState(1);
-  const [pagecount, setpagecount] = useState(0);
+  const [pagecount, setpagecount] = useState();
+  const [datasource, setdatasource] = useState([])
 
   useEffect(() => {
     updateNewTableView();
   }, [pageno])
 
+  // useEffect(() => {
+  //   paginationFunc();
+  // }, [pagecount])
+
   useEffect(() => {
-    paginationFunc();
-  }, [pagecount])
+    
+    getAllData().then((res) => { console.log(res); setdatasource(res); paginationFunc(); });
+
+  }, [])
 
   var rowsOnPage = 20;
 
-  let data = getsampledata();
+  // let data = getsampledata();
 
   const hotTableComponent = useRef(null);
 
@@ -67,6 +74,7 @@ function App() {
   }
 
   function validateBtnClick() {
+
     var t1 = performance.now();
 
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
@@ -101,7 +109,8 @@ function App() {
 
             <HotTable
               ref={hotTableComponent}
-              data={data}
+              // data={getsampledata()}
+              data={datasource}
               colHeaders={["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"]}
               rowHeaders={true}
               columns={[{

@@ -8,6 +8,7 @@ import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { PaginationComponent } from './components/PaginationComponent';
 import { findErrorSections, drawSectionBoders, getHiddenDataArray, getViewDataIssuesList, checkValidation } from './components/FunctionsHandsonTable'
+import { HandsonTableComp } from './components/HandsonTableComp';
 
 
 
@@ -21,12 +22,8 @@ function App() {
   const [datasource, setdatasource] = useState([])
 
   useEffect(() => {
-    updateNewTableView();
+    //updateNewTableView();
   }, [pageno])
-
-  // useEffect(() => {
-  //   paginationFunc();
-  // }, [pagecount])
 
   useEffect(() => {
     
@@ -34,7 +31,7 @@ function App() {
 
   }, [])
 
-  var rowsOnPage = 20;
+  var rowsOnPage = 5;
 
   // let data = getsampledata();
 
@@ -106,69 +103,7 @@ function App() {
         </Row>
         <Row>
           <Col>
-
-            <HotTable
-              ref={hotTableComponent}
-              // data={getsampledata()}
-              data={datasource}
-              colHeaders={["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"]}
-              rowHeaders={true}
-              columns={[{
-                data: 'unit',
-                type: 'text',
-              },
-              {
-                data: 'skill1',
-                type: 'numeric',
-              },
-              {
-                data: 'skill2',
-                type: 'numeric',
-              },
-              {
-                data: 'skill3',
-                type: 'numeric',
-              },
-              {
-                data: 'capacity1',
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                data: 'capacity2',
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                data: 'capacity3',
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                data: 'capacity4',
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                data: 'rate',
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              }]}
-              stretchH='all'
-              manualColumnResize={true}
-              filters={true}
-              dropdownMenu={true}
-            />
+            <HandsonTableComp dataSource={datasource} hotTableforwardRef={hotTableComponent}/>           
           </Col>
         </Row>
         <Row>

@@ -2,7 +2,7 @@ import './App.css';
 import React, { useRef, useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
-import { postDataService, getAllData } from './services/apiService'
+import { postDataService, getAllData, getPageData } from './services/apiService'
 import { getsampledata } from './data/sampledata'
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,21 +17,37 @@ registerAllModules();
 
 function App() {
 
+  var rowsOnPage = 7;
+
   const [pageno, setpageno] = useState(1);
   const [pagecount, setpagecount] = useState();
   const [datasource, setdatasource] = useState([])
+  const [hotTableDatasource, sethotTableDatasource] = useState([])
 
   useEffect(() => {
-    //updateNewTableView();
+
+    async function pageNoChange() {
+      await validateBtnClick();
+      await getPageData({ pageNo: pageno, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+    }
+    pageNoChange();
   }, [pageno])
 
   useEffect(() => {
-    
-    getAllData().then((res) => { console.log(res); setdatasource(res); paginationFunc(); });
 
+    async function initialRun() {
+      await getAllData().then((res) => { setdatasource(res) });
+      await getPageData({ pageNo: 1, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+    }
+
+    initialRun();
   }, [])
 
-  var rowsOnPage = 5;
+  useEffect(() => {
+    setpagecount(Math.ceil(datasource.length / rowsOnPage));
+  }, [hotTableDatasource])
+
+
 
   // let data = getsampledata();
 
@@ -50,12 +66,14 @@ function App() {
   }
 
 
-  function paginationFunc() {
+  // async function paginationFunc() {
 
-    let tabledata = hotTableComponent.current.hotInstance.getData();
-    setpagecount(Math.ceil(tabledata.length / rowsOnPage));
+  //   // let tabledata = hotTableComponent.current.hotInstance.getData();
+  //   // setpagecount(Math.ceil(tabledata.length / rowsOnPage));
 
-  }
+  //   setpagecount(Math.ceil(datasource.length / rowsOnPage));
+
+  // }
 
   function saveBtnClick() {
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
@@ -75,8 +93,8 @@ function App() {
     var t1 = performance.now();
 
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
-    let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
-    drawSectionBoders(hotTableComponent.current.hotInstance, result);
+    // let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
+    drawSectionBoders(hotTableComponent.current.hotInstance, issueList);
     // checkValidation(result);
 
     var t2 = performance.now();
@@ -103,7 +121,7 @@ function App() {
         </Row>
         <Row>
           <Col>
-            <HandsonTableComp dataSource={datasource} hotTableforwardRef={hotTableComponent}/>           
+            <HandsonTableComp dataSource={hotTableDatasource} hotTableforwardRef={hotTableComponent} />
           </Col>
         </Row>
         <Row>

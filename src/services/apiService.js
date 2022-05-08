@@ -1,5 +1,12 @@
 import axios from "axios";
-import React from 'react'
+
+var baseUrl ="https://localhost:7246/";
+
+// interface PageDataRequestDto{
+//     pageNo : Number,
+//     numberOfDataInPage: Number
+// }
+
 
 export const postDataService = (data) => {
     debugger
@@ -12,7 +19,26 @@ export const postDataService = (data) => {
 
 export const getAllData = async () => {
     let result = [];
-    await axios.get('https://localhost:7246/api/Data/getAllData')
+    await axios.get(baseUrl+'api/Data/getAllData')
+        .then(function (response) {
+            // handle success
+           // console.log(response.data);
+            result = response.data;
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .then(function () {
+            // always executed
+        });
+
+    return result;
+}
+
+export const getPageData = async (data) => {
+    let result = [];
+    await axios.post(baseUrl+'api/Data/getdataAtPage',data)
         .then(function (response) {
             // handle success
            // console.log(response.data);

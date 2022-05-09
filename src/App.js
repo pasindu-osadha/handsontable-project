@@ -2,12 +2,13 @@ import './App.css';
 import React, { useRef, useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
-import { postDataService } from './services/apiService'
+import { postDataService, getAllData, getPageData, postPageData } from './services/apiService'
 import { getsampledata } from './data/sampledata'
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { PaginationComponent } from './components/PaginationComponent';
 import { findErrorSections, drawSectionBoders, getHiddenDataArray, getViewDataIssuesList, checkValidation } from './components/FunctionsHandsonTable'
+import { HandsonTableComp } from './components/HandsonTableComp';
 
 
 
@@ -16,24 +17,58 @@ registerAllModules();
 
 function App() {
 
+  var rowsOnPage = 10;
+
   const [pageno, setpageno] = useState(1);
-  const [pagecount, setpagecount] = useState(0);
+  const [pagecount, setpagecount] = useState();
+  const [datasource, setdatasource] = useState([])
+  const [hotTableDatasource, sethotTableDatasource] = useState([])
 
   useEffect(() => {
-    updateNewTableView();
+
+    async function pageNoChange() {
+      if (await validateBtnClick()) {
+        alert("Erorrs in data set. Please solve them and try again  ")
+      } else {
+        let data = await collectTableDataToList();
+        await postPageData(data);
+        await getPageData({ pageNo: pageno, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+      }
+    }
+    pageNoChange();
   }, [pageno])
 
+
+
   useEffect(() => {
-    paginationFunc();
-  }, [pagecount])
 
-  var rowsOnPage = 20;
+    async function initialRun() {
+      await getAllData().then((res) => { setdatasource(res) });
+      await getPageData({ pageNo: 1, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+    }
 
-  let data = getsampledata();
+    initialRun();
+  }, [])
+
+
+
+  useEffect(() => {
+    setpagecount(Math.ceil(datasource.length / rowsOnPage));
+  }, [hotTableDatasource])
+
+
+
+  // let data = getsampledata();
 
   const hotTableComponent = useRef(null);
 
-
+  async function collectTableDataToList() {
+    let tableObjectDataToList = [];
+    for (let i = 0; i < rowsOnPage; i++) {
+      tableObjectDataToList[i] = hotTableComponent.current.hotInstance.getSourceDataAtRow(i);
+    }
+    return tableObjectDataToList;
+  }
 
   function updateNewTableView() {
     let t = hotTableComponent.current.hotInstance.getData();
@@ -46,12 +81,14 @@ function App() {
   }
 
 
-  function paginationFunc() {
+  // async function paginationFunc() {
 
-    let tabledata = hotTableComponent.current.hotInstance.getData();
-    setpagecount(Math.ceil(tabledata.length / rowsOnPage));
+  //   // let tabledata = hotTableComponent.current.hotInstance.getData();
+  //   // setpagecount(Math.ceil(tabledata.length / rowsOnPage));
 
-  }
+  //   setpagecount(Math.ceil(datasource.length / rowsOnPage));
+
+  // }
 
   function saveBtnClick() {
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
@@ -67,15 +104,23 @@ function App() {
   }
 
   function validateBtnClick() {
-    var t1 = performance.now();
 
+    var t1 = performance.now();
+    debugger
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
-    let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
-    drawSectionBoders(hotTableComponent.current.hotInstance, result);
+    // let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
+    drawSectionBoders(hotTableComponent.current.hotInstance, issueList);
     // checkValidation(result);
+
 
     var t2 = performance.now();
     console.log("validateBtnClick function Take " + (t2 - t1) + " milliseconds.");
+
+    if (issueList.length !== 0)
+      return true;
+    else return false;
+
+
   }
 
   const callbackFunction = async (childData) => {
@@ -98,59 +143,7 @@ function App() {
         </Row>
         <Row>
           <Col>
-
-            <HotTable
-              ref={hotTableComponent}
-              data={data}
-              colHeaders={["Unit", "skill 1", "skill 2", "skill 3", "capacity 1", "capacity 2", "capacity 3", "capacity 4", "rate"]}
-              rowHeaders={true}
-              columns={[{
-                type: 'text',
-              },
-              {
-                type: 'numeric',
-              },
-              {
-                type: 'numeric',
-              },
-              {
-                type: 'numeric',
-              },
-              {
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              },
-              {
-                type: 'numeric',
-                numericFormat: {
-                  pattern: '%'
-                }
-              }]}
-              stretchH='all'
-              manualColumnResize={true}
-              filters={true}
-              dropdownMenu={true}
-            />
+            <HandsonTableComp dataSource={hotTableDatasource} hotTableforwardRef={hotTableComponent} />
           </Col>
         </Row>
         <Row>

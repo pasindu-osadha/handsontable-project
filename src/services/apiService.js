@@ -54,3 +54,22 @@ export const getPageData = async (data) => {
 
     return result;
 }
+
+export const postPageData = async (data) => {
+    let result = [];
+    await axios.put(baseUrl+'api/Data/updateRows',data)
+        .then(function (response) {
+            // handle success
+           // console.log(response.data);
+            result = response.data;
+        })
+        .catch(function (error) {
+            // handle error
+            console.log(error);
+        })
+        .then(function () {
+            // always executed
+        });
+
+    return result;
+}

@@ -2,7 +2,7 @@ import './App.css';
 import React, { useRef, useState, useEffect } from 'react';
 import { HotTable } from '@handsontable/react';
 import { registerAllModules } from 'handsontable/registry';
-import { postDataService, getAllData, getPageData } from './services/apiService'
+import { postDataService, getAllData, getPageData, postPageData } from './services/apiService'
 import { getsampledata } from './data/sampledata'
 import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -17,7 +17,7 @@ registerAllModules();
 
 function App() {
 
-  var rowsOnPage = 7;
+  var rowsOnPage = 10;
 
   const [pageno, setpageno] = useState(1);
   const [pagecount, setpagecount] = useState();
@@ -27,11 +27,18 @@ function App() {
   useEffect(() => {
 
     async function pageNoChange() {
-      await validateBtnClick();
-      await getPageData({ pageNo: pageno, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+      if (await validateBtnClick()) {
+        alert("Erorrs in data set. Please solve them and try again  ")
+      } else {
+        let data = await collectTableDataToList();
+        await postPageData(data);
+        await getPageData({ pageNo: pageno, numberOfDataInPage: rowsOnPage }).then((res) => { sethotTableDatasource(res); });
+      }
     }
     pageNoChange();
   }, [pageno])
+
+
 
   useEffect(() => {
 
@@ -43,6 +50,8 @@ function App() {
     initialRun();
   }, [])
 
+
+
   useEffect(() => {
     setpagecount(Math.ceil(datasource.length / rowsOnPage));
   }, [hotTableDatasource])
@@ -53,7 +62,13 @@ function App() {
 
   const hotTableComponent = useRef(null);
 
-
+  async function collectTableDataToList() {
+    let tableObjectDataToList = [];
+    for (let i = 0; i < rowsOnPage; i++) {
+      tableObjectDataToList[i] = hotTableComponent.current.hotInstance.getSourceDataAtRow(i);
+    }
+    return tableObjectDataToList;
+  }
 
   function updateNewTableView() {
     let t = hotTableComponent.current.hotInstance.getData();
@@ -91,14 +106,21 @@ function App() {
   function validateBtnClick() {
 
     var t1 = performance.now();
-
+    debugger
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
     // let result = getViewDataIssuesList(pageno, issueList, rowsOnPage);
     drawSectionBoders(hotTableComponent.current.hotInstance, issueList);
     // checkValidation(result);
 
+
     var t2 = performance.now();
     console.log("validateBtnClick function Take " + (t2 - t1) + " milliseconds.");
+
+    if (issueList.length !== 0)
+      return true;
+    else return false;
+
+
   }
 
   const callbackFunction = async (childData) => {

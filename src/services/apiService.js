@@ -2,12 +2,6 @@ import axios from "axios";
 
 var baseUrl ="https://localhost:7246/";
 
-// interface PageDataRequestDto{
-//     pageNo : Number,
-//     numberOfDataInPage: Number
-// }
-
-
 export const postDataService = (data) => {
     debugger
     return axios({

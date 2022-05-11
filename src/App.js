@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { PaginationComponent } from './components/PaginationComponent';
 import { findErrorSections, drawSectionBoders, getHiddenDataArray, getViewDataIssuesList, checkValidation } from './components/FunctionsHandsonTable'
 import { HandsonTableComp } from './components/HandsonTableComp';
+import { usePrevious } from './hooks/usePrevious';
 
 
 
@@ -21,12 +22,15 @@ function App() {
 
   const [pageno, setpageno] = useState(1);
   const [pagecount, setpagecount] = useState();
+  const previousPageNo = usePrevious(pageno);
   const [datasource, setdatasource] = useState([])
   const [hotTableDatasource, sethotTableDatasource] = useState([])
 
+  // This for page number changed 
   useEffect(() => {
-
+    console.log('Previous ' + previousPageNo);
     async function pageNoChange() {
+
       if (await validateBtnClick()) {
         alert("Erorrs in data set. Please solve them and try again  ")
       } else {
@@ -67,6 +71,7 @@ function App() {
     for (let i = 0; i < rowsOnPage; i++) {
       tableObjectDataToList[i] = hotTableComponent.current.hotInstance.getSourceDataAtRow(i);
     }
+    debugger
     return tableObjectDataToList;
   }
 
@@ -79,16 +84,6 @@ function App() {
       }
     });
   }
-
-
-  // async function paginationFunc() {
-
-  //   // let tabledata = hotTableComponent.current.hotInstance.getData();
-  //   // setpagecount(Math.ceil(tabledata.length / rowsOnPage));
-
-  //   setpagecount(Math.ceil(datasource.length / rowsOnPage));
-
-  // }
 
   function saveBtnClick() {
     let issueList = findErrorSections(hotTableComponent.current.hotInstance);
@@ -123,6 +118,16 @@ function App() {
 
   }
 
+  function addNewSheetBtnClick() {
+    let hottableInstance = hotTableComponent.current.hotInstance;
+
+    hottableInstance.updateSettings({
+      minRows: rowsOnPage,
+      data: [[]]
+    });
+
+  }
+
   const callbackFunction = async (childData) => {
     setpageno(childData); //stored in pageno
   }
@@ -139,6 +144,7 @@ function App() {
           <Col>
             <Button className="m-2" onClick={saveBtnClick}>Save</Button>
             <Button className='m-2' onClick={validateBtnClick}>Page Validate</Button>
+            <Button className='m-2' onClick={addNewSheetBtnClick}>Add new sheet</Button>
           </Col>
         </Row>
         <Row>

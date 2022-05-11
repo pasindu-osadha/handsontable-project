@@ -48,7 +48,6 @@ export function findErrorSections(hotTableInstance) {
     return issueList;
 }
 
-
 export function drawSectionBoders(hotTableInstance, issueList) {
 
     hotTableInstance.updateSettings({
@@ -79,7 +78,7 @@ export function getHiddenDataArray(clicked, hotTableInstanceArray, rowsOnPage) {
     }
 }
 
-export function getViewDataIssuesList(clicked, issueList,rowsOnPage) {
+export function getViewDataIssuesList(clicked, issueList, rowsOnPage) {
 
     let viewDataIssueList = []; // store view data Issue List as a arrays
 
@@ -101,25 +100,25 @@ export function getViewDataIssuesList(clicked, issueList,rowsOnPage) {
 }
 
 export function checkValidation(issueList) {
-  
+
     if (issueList.length !== 0) {
 
-      let skillobject = issueList.find(skill => skill.range.from.col === 1 && skill.range.to.col === 3);
-      let capacityObject = issueList.find(skill => skill.range.from.col === 4 && skill.range.to.col === 7);
+        let skillobject = issueList.find(skill => skill.range.from.col === 1 && skill.range.to.col === 3);
+        let capacityObject = issueList.find(skill => skill.range.from.col === 4 && skill.range.to.col === 7);
 
-      if (skillobject !== undefined) {
-        alert('In the skill section, Total shuld be equals to 1')
-      }
+        if (skillobject !== undefined) {
+            alert('In the skill section, Total shuld be equals to 1')
+        }
 
-      if (capacityObject !== undefined) {
-        alert('In Capacity section, Total shuld be equals to 100% ');
-      }
+        if (capacityObject !== undefined) {
+            alert('In Capacity section, Total shuld be equals to 100% ');
+        }
 
-      return false;
+        return false;
     }
     else {
-      return true;
+        return true;
     }
 
-  }
+}
 

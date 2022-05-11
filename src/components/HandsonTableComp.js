@@ -9,7 +9,7 @@ registerAllModules();
 
 export const HandsonTableComp = ({ dataSource, hotTableforwardRef }) => {
 
-  
+
 
     useEffect(() => {
         console.log('handsontable component is mounted')
@@ -84,6 +84,7 @@ export const HandsonTableComp = ({ dataSource, hotTableforwardRef }) => {
                 manualColumnResize={true}
                 filters={true}
                 dropdownMenu={true}
+                contextMenu={true}
             /></div>
     )
 }
